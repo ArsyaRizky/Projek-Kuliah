@@ -1,32 +1,40 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
+
 class SignUp extends Component {
   constructor(props) {
     super(props);
     this.signUpButtonClick = this.signUpButtonClick.bind(this);
   }
 
-  signUpButtonClick (event) {
-    debugger
+  async signUpButtonClick(event) {
     event.preventDefault();
     let username = document.getElementById('username').value;
     let lastname = document.getElementById('lastname').value;
     let password = document.getElementById('password').value;
     let email = document.getElementById('email').value;
 
-    let data = {};
-    data['username'] = username;
-    data['lastname'] = lastname;
-    data['password'] = password;
-    data['email'] = email;
+    let data = {
+      username: username,
+      nama_lengkap: lastname,
+      password: password,
+      email: email
+    };
 
-
-    localStorage.setItem('userdata', JSON.stringify(data));
-    data = JSON.parse(localStorage.getItem('userdata'));
-    this.props.history.push('/Login');
+    try {
+      const response = await axios.post('http://localhost/tribone-api-master/register.php', data);
+      if (response.data.status === 200) {
+        this.props.history.push('/Login');
+      } else {
+        console.error(response.data.message);
+      }
+    } catch (error) {
+      console.error("Signup failed:", error.response ? error.response.data : error.message);
+    }
   }
 
-  render () {
+  render() {
     return (
       <div className="container">
         <form onSubmit={this.signUpButtonClick}>
@@ -52,8 +60,7 @@ class SignUp extends Component {
             <input type="password" id="password" className="form-control" autoComplete="on" placeholder="Enter password" />
           </div>
 
-          <button type="submit" className="btn btn-primary btn-block"
-            value="Submit">Sign Up</button>
+          <button type="submit" className="btn btn-primary btn-block">Sign Up</button>
           <p className="forgot-password text-right">
             Already registered <Link to="/Login">sign in?</Link>
           </p>
